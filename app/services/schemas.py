@@ -1,6 +1,8 @@
 from typing import List, Optional
 from pydantic import BaseModel, field_validator
 
+from sqlalchemy import Text
+
 from uuid import UUID
 from enum import Enum
 
@@ -29,8 +31,7 @@ class UserCreate(UserBase):
         if value and (len(value) != 2 or not value.isalpha()):
             raise ValueError("preferred_language must be a two-letter language code.")
         return value.lower() if value else value
-    
-    
+      
 class UserResponse(UserBase):
     id: UUID
     username: str
@@ -38,9 +39,27 @@ class UserResponse(UserBase):
     last_name: Optional[str] = None
     status: UserRoles
     
+class InvitationStatus(Enum):
+    PENDING = "pending"
+    ACCEPTED = "accepted"
+    REJECTED = "rejected"
     
+class InvitationStatusUpdate(BaseModel):
+    status: InvitationStatus
     
+class InvitationCreate(BaseModel):
+    sender_id: UUID
+    receiver_id: UUID
+    status: Optional[InvitationStatus] = InvitationStatus.PENDING
     
 
+class MessageCreate(BaseModel):
+    sender_id: UUID
+    receiver_id: UUID
+    content: str
+    
+    
+    
+    
     
     

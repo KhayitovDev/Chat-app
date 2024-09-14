@@ -3,7 +3,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import users
+from app.api import users, invitations, message
 
 app = FastAPI()
 
@@ -21,4 +21,5 @@ app.add_middleware(
 )
 
 app.include_router(users.router, prefix="/api/users", tags=["users"])
-
+app.include_router(invitations.router, prefix="/api/invitations", tags=["invitations"])
+app.include_router(message.router, prefix="/api/messages", tags=["messages"])
