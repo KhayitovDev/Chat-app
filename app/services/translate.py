@@ -11,4 +11,3 @@ def translate_text(text: str, source_lang: str, target_lang: str) -> str:
         print(f"Error occurred while translating: {str(e)}")
         return text
 
-print(translate_text(text="Welcome to real world, man", source_lang="en", target_lang="ru"))
