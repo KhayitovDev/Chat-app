@@ -8,6 +8,17 @@ from enum import Enum
 
 
 
+class UserLogin(BaseModel):
+    username: str
+    password: str
+    
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+    
+class TokenData(BaseModel):
+    username: str
+
 class UserRoles(str, Enum):
     ADMIN = "admin"
     MEMBER = "member"
@@ -26,11 +37,11 @@ class UserCreate(UserBase):
     preferred_language: Optional[str] = None
     status: Optional[UserRoles] = UserRoles.MEMBER
     
-    @field_validator("preferred_language")
-    def validate_language(cls, value):
-        if value and (len(value) != 2 or not value.isalpha()):
-            raise ValueError("preferred_language must be a two-letter language code.")
-        return value.lower() if value else value
+    # @field_validator("preferred_language")
+    # def validate_language(cls, value):
+    #     if value and (len(value) != 4 or not value.isalpha()):
+    #         raise ValueError("preferred_language must be a two-letter language code.")
+    #     return value.lower() if value else value
       
 class UserResponse(UserBase):
     id: UUID

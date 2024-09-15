@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.models.models import Message, User
 from app.services.schemas import MessageCreate
-
+from app.services.translate import translate_text
 
 
 from app.api import users, invitations, message
@@ -76,25 +76,26 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
             db.add(db_message)
             db.commit()
             
+            sender = db.query(User).filter_by(id=user_id).first()
             receiver = db.query(User).filter_by(id=receiver_id).first()
-            receiver_lang = receiver.preferred_language 
-       
             
-            # if receiver_lang and receiver_lang != "en": 
-            #     try:
-                    
-            #         translated_message = translate_text(content, "en", receiver_lang)
-            #     except Exception as e:
-            #         print(f"Error translating message: {str(e)}")
-            #         translated_message = content 
-            # else:
-            #     translated_message = content 
+            sender_lang = sender.preferred_language
+            receiver_lang = receiver.preferred_language
+            
+            if sender_lang and sender_lang != receiver_lang:
+                try:
 
-
-            await websocket.send_text(f"You: {content}")
+                    translated_message = translate_text(content, sender_lang, receiver_lang)
+                except Exception as e:
+                    print(f"Error translating message: {str(e)}")
+                    translated_message = content  
+            else:
+                translated_message = content  
+                
+            # await websocket.send_text(f"{content}")
             
             if receiver_id in connections:
-                await connections[receiver_id].send_text(f"User: {content}")
+                await connections[receiver_id].send_text(f"{sender.username}: {translated_message}")
     
     except WebSocketDisconnect:
         del connections[user_id] 

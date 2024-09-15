@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebSocket Chat</title>
-
+    <title>Limitless Chat</title>
+    
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <style>
@@ -44,12 +45,12 @@
             margin-bottom: 5px;
         }
         .message-sent {
-            background-color: #85b7ed;
+            background-color: #007bff;
             color: white;
             text-align: right;
         }
         .message-received {
-            background-color: #92c796;
+            background-color: #e9ecef;
             color: black;
             text-align: left;
         }
@@ -66,14 +67,15 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
-    let userId;
-    let receiverId;
+    const userId = prompt("Enter your username:");
+    const receiverUsername = prompt("Enter the receiver's username:");
 
     async function getUserId(username) {
-        const response = await fetch(`/api/users/get_user_id/${username}`);
+        const response = await fetch(`api/users/get_user_id/${username}`);
         const data = await response.json();
-        console.log(data);
         if (data.user_id) {
             return data.user_id;
         } else {
@@ -82,18 +84,8 @@
         }
     }
 
-   
-    const userUsername = prompt("Enter your username:");
-    const receiverUsername = prompt("Enter the receiver's username:");
-
-   
-    getUserId(userUsername).then((id) => {
-        userId = id;
-
-        return getUserId(receiverUsername);
-    }).then((id) => {
-        receiverId = id;
-
+    async function initializeChat() {
+        const receiverId = await getUserId(receiverUsername);
         const websocket = new WebSocket(`ws://localhost:8000/ws/${userId}`);
 
         websocket.onopen = function(event) {
@@ -123,17 +115,17 @@
 
             websocket.send(JSON.stringify(message));
 
+          
             const chatBox = document.getElementById("chat-box");
             chatBox.innerHTML += `<div class="message message-sent">You: ${messageInput}</div>`;
             chatBox.scrollTop = chatBox.scrollHeight;
 
-            document.getElementById("message-input").value = ""; 
+            document.getElementById("message-input").value = "";  // Clear input after sending
         });
-    }).catch((error) => {
-        console.error("Error:", error);
-    });
-</script>
+    }
 
+    initializeChat();
+</script>
 
 </body>
 </html>
