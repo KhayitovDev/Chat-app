@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Chat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #chat-box {
+            width: 300px;
+            height: 400px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            overflow-y: scroll;
+            margin-bottom: 10px;
+        }
+        #message-input {
+            width: 200px;
+            padding: 5px;
+        }
+        #send-button {
+            padding: 5px 10px;
+        }
+    </style>
+</head>
+<body>
+
+<h2>WebSocket Chat</h2>
+<div id="chat-box"></div>
+<input type="text" id="message-input" placeholder="Type your message here" />
+<button id="send-button">Send</button>
+
+<script>
+    const userId = prompt("Enter your user ID (e.g., user1 or user2):");
+    const receiverId = prompt("Enter the receiver's user ID:");
+ 
+    const websocket = new WebSocket(`ws://localhost:8000/ws/${userId}`);
+
+    websocket.onopen = function(event) {
+        console.log("Connected to the WebSocket server");
+        document.getElementById("chat-box").innerHTML += "Connected to the server.<br/>";
+    };
+
+    websocket.onmessage = function(event) {
+        const chatBox = document.getElementById("chat-box");
+        chatBox.innerHTML += event.data + "<br/>";
+        chatBox.scrollTop = chatBox.scrollHeight; 
+        console.log("Message received:", event.data); // Auto scroll to the latest message
+    };
+
+    websocket.onclose = function(event) {
+        console.log("Disconnected from WebSocket server");
+        document.getElementById("chat-box").innerHTML += "Disconnected from the server.<br/>";
+    };
+
+    document.getElementById("send-button").addEventListener("click", function() {
+        const messageInput = document.getElementById("message-input").value;
+        const message = {
+            receiver_id: receiverId,
+            content: messageInput
+        };
+        websocket.send(JSON.stringify(message));
+        document.getElementById("message-input").value = "";  // Clear input after sending
+    });
+</script>
+
+</body>
+</html>
